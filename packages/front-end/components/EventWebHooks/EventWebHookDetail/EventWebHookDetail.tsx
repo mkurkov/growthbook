@@ -177,7 +177,10 @@ export const EventWebHookDetail: FC<EventWebHookDetailProps> = ({
           onClose={onModalClose}
           onSubmit={onEdit}
           error={editError}
-          mode={{ mode: "edit", data: eventWebHook }}
+          mode={{
+            mode: "edit",
+            data: { ...eventWebHook, tags: [], environments: [], projects: [] },
+          }}
         />
       ) : null}
     </div>

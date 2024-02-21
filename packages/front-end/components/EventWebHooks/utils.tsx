@@ -7,6 +7,9 @@ export type EventWebHookEditParams = {
   url: string;
   enabled: boolean;
   events: NotificationEventName[];
+  tags: string[];
+  environments: string[];
+  projects: string[];
 };
 
 export const notificationEventNames = [

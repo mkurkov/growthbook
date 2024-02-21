@@ -11,6 +11,9 @@ import {
   EventWebHookModalMode,
   notificationEventNames,
 } from "@/components/EventWebHooks/utils";
+import { useEnvironments } from "@/services/features";
+import { useDefinitions } from "@/services/DefinitionsContext";
+import TagsInput from "@/components/Tags/TagsInput";
 
 type EventWebHookAddEditModalProps = {
   isOpen: boolean;
@@ -28,6 +31,10 @@ export const EventWebHookAddEditModal: FC<EventWebHookAddEditModalProps> = ({
   error,
 }) => {
   const [ctaEnabled, setCtaEnabled] = useState(false);
+  const environmentSettings = useEnvironments();
+  const environments = environmentSettings.map((env) => env.id);
+
+  const { projects, tags } = useDefinitions();
 
   const form = useForm<EventWebHookEditParams>({
     defaultValues:
@@ -38,6 +45,9 @@ export const EventWebHookAddEditModal: FC<EventWebHookAddEditModalProps> = ({
             events: [],
             url: "",
             enabled: true,
+            environments: [],
+            projects: [],
+            tags: [],
           },
   });
 
@@ -121,6 +131,54 @@ export const EventWebHookAddEditModal: FC<EventWebHookAddEditModalProps> = ({
           handleFormValidation();
         }}
       />
+
+      <MultiSelectField
+        label="Environment filters"
+        helpText="Only receive notifications for matching environments."
+        value={form.watch("environments")}
+        options={environments.map((env) => ({
+          label: env,
+          value: env,
+        }))}
+        onChange={(value: string[]) => {
+          form.setValue("environments", value);
+          handleFormValidation();
+        }}
+      />
+
+      <MultiSelectField
+        label="Project filters"
+        helpText="Only receive notifications for matching projects."
+        value={form.watch("projects")}
+        options={projects.map(({ name, id }) => ({
+          label: name,
+          value: id,
+        }))}
+        onChange={(value: string[]) => {
+          form.setValue("projects", value);
+          handleFormValidation();
+        }}
+      />
+
+      <div className="form-group">
+        <label className="d-block">Tag filters</label>
+        <div className="mt-1">
+          <TagsInput
+            tagOptions={tags}
+            value={form.watch("tags")}
+            onChange={(selected: string[]) => {
+              form.setValue(
+                "tags",
+                selected.map((item) => item)
+              );
+              handleFormValidation();
+            }}
+          />
+          <small className="text-muted">
+            Only receive notifications for matching tags.
+          </small>
+        </div>
+      </div>
 
       <div className="form-group">
         <Toggle
