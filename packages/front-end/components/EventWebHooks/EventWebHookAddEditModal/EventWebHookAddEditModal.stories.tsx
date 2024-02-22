@@ -35,6 +35,7 @@ export const EditMode = () => {
           tags: [],
           environments: [],
           projects: [],
+          payloadType: "raw",
         },
       }}
     />

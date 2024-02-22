@@ -10,6 +10,10 @@ import {
 import { errorStringFromZodResult } from "../util/validation";
 import { EventWebHookInterface } from "../../types/event-webhook";
 import { logger } from "../util/logger";
+import {
+  eventWebHookPayloadType,
+  EventWebHookPayloadType,
+} from "../types/EventWebHook";
 
 const eventWebHookSchema = new mongoose.Schema({
   id: {
@@ -24,6 +28,42 @@ const eventWebHookSchema = new mongoose.Schema({
   name: {
     type: String,
     required: true,
+  },
+  payloadType: {
+    type: String,
+    required: false,
+    validate: {
+      validator(value: unknown) {
+        const zodSchema = z.enum(eventWebHookPayloadType);
+
+        const result = zodSchema.safeParse(value);
+
+        if (!result.success) {
+          const errorString = errorStringFromZodResult(result);
+          logger.error(
+            {
+              error: JSON.stringify(errorString, null, 2),
+              result: JSON.stringify(result, null, 2),
+            },
+            "Invalid Payload Type"
+          );
+        }
+
+        return result.success;
+      },
+    },
+  },
+  projects: {
+    type: [String],
+    required: false,
+  },
+  tags: {
+    type: [String],
+    required: false,
+  },
+  environments: {
+    type: [String],
+    required: false,
   },
   dateCreated: {
     type: Date,
@@ -107,6 +147,10 @@ type CreateEventWebHookOptions = {
   organizationId: string;
   enabled: boolean;
   events: NotificationEventName[];
+  projects: string[];
+  tags: string[];
+  environments: string[];
+  payloadType: EventWebHookPayloadType;
 };
 
 /**
@@ -120,6 +164,10 @@ export const createEventWebHook = async ({
   organizationId,
   enabled,
   events,
+  projects,
+  tags,
+  environments,
+  payloadType,
 }: CreateEventWebHookOptions): Promise<EventWebHookInterface> => {
   const now = new Date();
   const signingKey = "ewhk_" + md5(randomUUID()).substr(0, 32);
@@ -134,6 +182,10 @@ export const createEventWebHook = async ({
     events,
     url,
     signingKey,
+    projects,
+    tags,
+    environments,
+    payloadType,
     lastRunAt: null,
     lastState: "none",
     lastResponseBody: null,

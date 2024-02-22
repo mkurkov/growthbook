@@ -1,6 +1,9 @@
 import type { Response } from "express";
 import { PrivateApiErrorResponse } from "../../../types/api";
-import { EventWebHookInterface } from "../../../types/event-webhook";
+import {
+  EventWebHookInterface,
+  EventWebHookPayloadType,
+} from "../../../types/event-webhook";
 import * as EventWebHook from "../../models/EventWebhookModel";
 import {
   deleteEventWebHookById,
@@ -74,6 +77,10 @@ type PostEventWebHooksRequest = AuthRequest & {
     name: string;
     enabled: boolean;
     events: NotificationEventName[];
+    tags: string[];
+    environments: string[];
+    projects: string[];
+    payloadType: EventWebHookPayloadType;
   };
 };
 
@@ -88,7 +95,16 @@ export const createEventWebHook = async (
   req.checkPermissions("manageWebhooks");
 
   const { org } = getContextFromReq(req);
-  const { url, name, events, enabled } = req.body;
+  const {
+    url,
+    name,
+    events,
+    enabled,
+    tags = [],
+    projects = [],
+    environments = [],
+    payloadType = "raw",
+  } = req.body;
 
   const created = await EventWebHook.createEventWebHook({
     name,
@@ -96,6 +112,10 @@ export const createEventWebHook = async (
     events,
     organizationId: org.id,
     enabled,
+    projects,
+    environments,
+    tags,
+    payloadType,
   });
 
   return res.json({ eventWebHook: created });
@@ -171,6 +191,10 @@ type UpdateEventWebHookRequest = AuthRequest<
     url: string;
     enabled: boolean;
     events: NotificationEventName[];
+    tags: string[];
+    environments: string[];
+    projects: string[];
+    payloadType: EventWebHookPayloadType;
   },
   { eventWebHookId: string }
 >;

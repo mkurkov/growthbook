@@ -4,8 +4,11 @@ import { useForm } from "react-hook-form";
 import { NotificationEventName } from "back-end/src/events/base-types";
 import Modal from "@/components/Modal";
 import MultiSelectField from "@/components/Forms/MultiSelectField";
+import SelectField from "@/components/Forms/SelectField";
 import Toggle from "@/components/Forms/Toggle";
 import {
+  eventWebHookPayloadType,
+  EventWebHookPayloadType,
   EventWebHookEditParams,
   eventWebHookEventOptions,
   EventWebHookModalMode,
@@ -22,6 +25,13 @@ type EventWebHookAddEditModalProps = {
   mode: EventWebHookModalMode;
   error: string | null;
 };
+
+const eventWebHookPayloadValues: { [k in EventWebHookPayloadType]: string } = {
+  raw: "Raw",
+  slack: "Slack",
+  discord: "Discord",
+  "ms-teams": "Microsoft Teams",
+} as const;
 
 export const EventWebHookAddEditModal: FC<EventWebHookAddEditModalProps> = ({
   isOpen,
@@ -48,6 +58,7 @@ export const EventWebHookAddEditModal: FC<EventWebHookAddEditModalProps> = ({
             environments: [],
             projects: [],
             tags: [],
+            payloadType: "raw",
           },
   });
 
@@ -67,6 +78,10 @@ export const EventWebHookAddEditModal: FC<EventWebHookAddEditModalProps> = ({
       name: z.string().trim().min(2),
       enabled: z.boolean(),
       events: z.array(z.enum(notificationEventNames)).min(1),
+      payloadType: z.enum(eventWebHookPayloadType),
+      tags: z.array(z.string()),
+      projects: z.array(z.string()),
+      environments: z.array(z.string()),
     });
 
     setCtaEnabled(schema.safeParse(formValues).success);
@@ -128,6 +143,20 @@ export const EventWebHookAddEditModal: FC<EventWebHookAddEditModalProps> = ({
         }))}
         onChange={(value: string[]) => {
           form.setValue("events", value as NotificationEventName[]);
+          handleFormValidation();
+        }}
+      />
+
+      <SelectField
+        label="Payload Type"
+        value={form.watch("payloadType")}
+        placeholder="Choose payload type"
+        options={eventWebHookPayloadType.map((key) => ({
+          label: eventWebHookPayloadValues[key],
+          value: key,
+        }))}
+        onChange={(value: EventWebHookPayloadType) => {
+          form.setValue("payloadType", value);
           handleFormValidation();
         }}
       />
