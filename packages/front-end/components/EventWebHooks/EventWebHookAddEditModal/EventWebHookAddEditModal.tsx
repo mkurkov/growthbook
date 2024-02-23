@@ -7,7 +7,9 @@ import MultiSelectField from "@/components/Forms/MultiSelectField";
 import SelectField from "@/components/Forms/SelectField";
 import Toggle from "@/components/Forms/Toggle";
 import {
-  eventWebHookPayloadType,
+  eventWebHookMethods,
+  EventWebHookMethod,
+  eventWebHookPayloadTypes,
   EventWebHookPayloadType,
   EventWebHookEditParams,
   eventWebHookEventOptions,
@@ -59,6 +61,8 @@ export const EventWebHookAddEditModal: FC<EventWebHookAddEditModalProps> = ({
             projects: [],
             tags: [],
             payloadType: "raw",
+            method: "POST",
+            headers: {},
           },
   });
 
@@ -78,10 +82,12 @@ export const EventWebHookAddEditModal: FC<EventWebHookAddEditModalProps> = ({
       name: z.string().trim().min(2),
       enabled: z.boolean(),
       events: z.array(z.enum(notificationEventNames)).min(1),
-      payloadType: z.enum(eventWebHookPayloadType),
+      payloadType: z.enum(eventWebHookPayloadTypes),
       tags: z.array(z.string()),
       projects: z.array(z.string()),
       environments: z.array(z.string()),
+      method: z.enum(eventWebHookMethods),
+      headers: z.object({}).catchall(z.string()),
     });
 
     setCtaEnabled(schema.safeParse(formValues).success);
@@ -133,6 +139,20 @@ export const EventWebHookAddEditModal: FC<EventWebHookAddEditModalProps> = ({
         />
       </div>
 
+      <SelectField
+        label="Method"
+        value={form.watch("method")}
+        placeholder="Choose HTTP method"
+        options={eventWebHookMethods.map((method) => ({
+          label: method,
+          value: method,
+        }))}
+        onChange={(value: EventWebHookMethod) => {
+          form.setValue("method", value);
+          handleFormValidation();
+        }}
+      />
+
       <MultiSelectField
         label="Events"
         value={form.watch("events")}
@@ -151,7 +171,7 @@ export const EventWebHookAddEditModal: FC<EventWebHookAddEditModalProps> = ({
         label="Payload Type"
         value={form.watch("payloadType")}
         placeholder="Choose payload type"
-        options={eventWebHookPayloadType.map((key) => ({
+        options={eventWebHookPayloadTypes.map((key) => ({
           label: eventWebHookPayloadValues[key],
           value: key,
         }))}

@@ -3,6 +3,7 @@ import { PrivateApiErrorResponse } from "../../../types/api";
 import {
   EventWebHookInterface,
   EventWebHookPayloadType,
+  EventWebHookMethod,
 } from "../../../types/event-webhook";
 import * as EventWebHook from "../../models/EventWebhookModel";
 import {
@@ -81,6 +82,8 @@ type PostEventWebHooksRequest = AuthRequest & {
     environments: string[];
     projects: string[];
     payloadType: EventWebHookPayloadType;
+    method: EventWebHookMethod;
+    headers: Record<string, string>;
   };
 };
 
@@ -104,6 +107,8 @@ export const createEventWebHook = async (
     projects = [],
     environments = [],
     payloadType = "raw",
+    method = "POST",
+    headers = {},
   } = req.body;
 
   const created = await EventWebHook.createEventWebHook({
@@ -116,6 +121,8 @@ export const createEventWebHook = async (
     environments,
     tags,
     payloadType,
+    method,
+    headers,
   });
 
   return res.json({ eventWebHook: created });
@@ -195,6 +202,8 @@ type UpdateEventWebHookRequest = AuthRequest<
     environments: string[];
     projects: string[];
     payloadType: EventWebHookPayloadType;
+    method: EventWebHookMethod;
+    headers: Record<string, string>;
   },
   { eventWebHookId: string }
 >;

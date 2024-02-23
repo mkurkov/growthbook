@@ -3,7 +3,10 @@ import z from "zod";
 import { wrapController } from "../wrapController";
 import { validateRequestMiddleware } from "../utils/validateRequestMiddleware";
 import { notificationEventNames } from "../../events/base-types";
-import { eventWebHookPayloadType } from "../../types/EventWebHook";
+import {
+  eventWebHookMethods,
+  eventWebHookPayloadTypes,
+} from "../../types/EventWebHook";
 import * as rawEventWebHooksController from "./event-webhooks.controller";
 
 const router = express.Router();
@@ -32,7 +35,9 @@ router.post(
         projects: z.array(z.string()),
         tags: z.array(z.string()),
         environments: z.array(z.string()),
-        payloadType: z.enum(eventWebHookPayloadType),
+        payloadType: z.enum(eventWebHookPayloadTypes),
+        method: z.enum(eventWebHookMethods),
+        headers: z.object({}).catchall(z.string()),
       })
       .strict(),
   }),
@@ -108,7 +113,9 @@ router.put(
         projects: z.array(z.string()),
         tags: z.array(z.string()),
         environments: z.array(z.string()),
-        payloadType: z.enum(eventWebHookPayloadType),
+        payloadType: z.enum(eventWebHookPayloadTypes),
+        method: z.enum(eventWebHookMethods),
+        headers: z.object({}).catchall(z.string()),
       })
       .strict(),
   }),

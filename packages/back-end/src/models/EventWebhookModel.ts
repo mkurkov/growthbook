@@ -11,8 +11,10 @@ import { errorStringFromZodResult } from "../util/validation";
 import { EventWebHookInterface } from "../../types/event-webhook";
 import { logger } from "../util/logger";
 import {
-  eventWebHookPayloadType,
+  eventWebHookPayloadTypes,
   EventWebHookPayloadType,
+  eventWebHookMethods,
+  EventWebHookMethod,
 } from "../types/EventWebHook";
 
 const eventWebHookSchema = new mongoose.Schema({
@@ -29,12 +31,41 @@ const eventWebHookSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  headers: {
+    type: Map,
+    of: String,
+    required: false,
+  },
+  method: {
+    type: String,
+    required: false,
+    validate: {
+      validator(value: unknown) {
+        const zodSchema = z.enum(eventWebHookMethods);
+
+        const result = zodSchema.safeParse(value);
+
+        if (!result.success) {
+          const errorString = errorStringFromZodResult(result);
+          logger.error(
+            {
+              error: JSON.stringify(errorString, null, 2),
+              result: JSON.stringify(result, null, 2),
+            },
+            "Invalid Method"
+          );
+        }
+
+        return result.success;
+      },
+    },
+  },
   payloadType: {
     type: String,
     required: false,
     validate: {
       validator(value: unknown) {
-        const zodSchema = z.enum(eventWebHookPayloadType);
+        const zodSchema = z.enum(eventWebHookPayloadTypes);
 
         const result = zodSchema.safeParse(value);
 
@@ -151,6 +182,8 @@ type CreateEventWebHookOptions = {
   tags: string[];
   environments: string[];
   payloadType: EventWebHookPayloadType;
+  method: EventWebHookMethod;
+  headers: Record<string, string>;
 };
 
 /**
@@ -168,6 +201,8 @@ export const createEventWebHook = async ({
   tags,
   environments,
   payloadType,
+  method,
+  headers,
 }: CreateEventWebHookOptions): Promise<EventWebHookInterface> => {
   const now = new Date();
   const signingKey = "ewhk_" + md5(randomUUID()).substr(0, 32);
@@ -186,6 +221,8 @@ export const createEventWebHook = async ({
     tags,
     environments,
     payloadType,
+    method,
+    headers,
     lastRunAt: null,
     lastState: "none",
     lastResponseBody: null,
