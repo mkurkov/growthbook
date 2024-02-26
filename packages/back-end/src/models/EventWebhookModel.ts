@@ -370,8 +370,10 @@ export const getAllEventWebHooksForEvent = async ({
     organizationId,
     events: eventName,
     enabled,
-    ...(tags.length ? { tags: { $elemMatch: { $in: tags } } } : {}),
-    ...(projects.length ? { projects: { $elemMatch: { $in: tags } } } : {}),
+    tags: tags.length ? { $elemMatch: { $in: tags } } : { $size: 0 },
+    projects: projects.length
+      ? { $elemMatch: { $in: projects } }
+      : { $size: 0 },
   });
 
   return docs.map(toInterface);
