@@ -1,5 +1,4 @@
 import { KnownBlock } from "@slack/web-api";
-import uniq from "lodash/uniq";
 import isEqual from "lodash/isEqual";
 import intersection from "lodash/intersection";
 import { logger } from "../../../util/logger";
@@ -16,14 +15,14 @@ import {
 import { SlackIntegrationInterface } from "../../../../types/slack-integration";
 import { APP_ORIGIN } from "../../../util/secrets";
 import { ApiFeature } from "../../../../types/openapi";
+import {
+  FilterDataForNotificationEvent,
+  getFilterDataForNotificationEvent,
+} from "../utils";
 
 // region Filtering
 
-type DataForNotificationEvent = {
-  filterData: {
-    tags: string[];
-    projects: string[];
-  };
+type DataForNotificationEvent = FilterDataForNotificationEvent & {
   slackMessage: SlackMessage;
 };
 
@@ -31,60 +30,36 @@ export const getDataForNotificationEvent = (
   event: NotificationEvent,
   eventId: string
 ): DataForNotificationEvent | null => {
+  const filterData = getFilterDataForNotificationEvent(event);
+  if (!filterData) return null;
+
+  let invalidEvent: never;
+
   switch (event.event) {
     case "user.login":
       return null;
 
     case "feature.created":
       return {
-        filterData: {
-          tags: event.data.current.tags || [],
-          projects: event.data.current.project
-            ? [event.data.current.project]
-            : [],
-        },
+        ...filterData,
         slackMessage: buildSlackMessageForFeatureCreatedEvent(event, eventId),
       };
 
     case "feature.updated":
       return {
-        filterData: {
-          tags: uniq(
-            (event.data.current.tags || []).concat(
-              event.data.previous.tags || []
-            )
-          ),
-          projects: uniq(
-            (event.data.current.project
-              ? [event.data.current.project]
-              : []
-            ).concat(
-              event.data.previous.project ? [event.data.previous.project] : []
-            )
-          ),
-        },
+        ...filterData,
         slackMessage: buildSlackMessageForFeatureUpdatedEvent(event, eventId),
       };
 
     case "feature.deleted":
       return {
-        filterData: {
-          tags: event.data.previous.tags || [],
-          projects: event.data.previous.project
-            ? [event.data.previous.project]
-            : [],
-        },
+        ...filterData,
         slackMessage: buildSlackMessageForFeatureDeletedEvent(event, eventId),
       };
 
     case "experiment.created":
       return {
-        filterData: {
-          tags: event.data.current.tags || [],
-          projects: event.data.current.project
-            ? [event.data.current.project]
-            : [],
-        },
+        ...filterData,
         slackMessage: buildSlackMessageForExperimentCreatedEvent(
           event,
           eventId
@@ -93,21 +68,7 @@ export const getDataForNotificationEvent = (
 
     case "experiment.updated":
       return {
-        filterData: {
-          tags: uniq(
-            (event.data.current.tags || []).concat(
-              event.data.previous.tags || []
-            )
-          ),
-          projects: uniq(
-            (event.data.current.project
-              ? [event.data.current.project]
-              : []
-            ).concat(
-              event.data.previous.project ? [event.data.previous.project] : []
-            )
-          ),
-        },
+        ...filterData,
         slackMessage: buildSlackMessageForExperimentUpdatedEvent(
           event,
           eventId
@@ -116,17 +77,16 @@ export const getDataForNotificationEvent = (
 
     case "experiment.deleted":
       return {
-        filterData: {
-          tags: event.data.previous.tags || [],
-          projects: event.data.previous.project
-            ? [event.data.previous.project]
-            : [],
-        },
+        ...filterData,
         slackMessage: buildSlackMessageForExperimentDeletedEvent(
           event,
           eventId
         ),
       };
+
+    default:
+      invalidEvent = event;
+      throw `Invalid event: ${invalidEvent}`;
   }
 };
 
