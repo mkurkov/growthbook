@@ -353,15 +353,25 @@ export const getAllEventWebHooks = async (
  * @param eventName
  * @param enabled
  */
-export const getAllEventWebHooksForEvent = async (
-  organizationId: string,
-  eventName: NotificationEventName,
-  enabled: boolean
-): Promise<EventWebHookInterface[]> => {
+export const getAllEventWebHooksForEvent = async ({
+  organizationId,
+  eventName,
+  enabled,
+  tags,
+  projects,
+}: {
+  organizationId: string;
+  eventName: NotificationEventName;
+  enabled: boolean;
+  tags: string[];
+  projects: string[];
+}): Promise<EventWebHookInterface[]> => {
   const docs = await EventWebHookModel.find({
     organizationId,
     events: eventName,
     enabled,
+    ...(tags.length ? { tags: { $elemMatch: { $in: tags } } } : {}),
+    ...(projects.length ? { projects: { $elemMatch: { $in: tags } } } : {}),
   });
 
   return docs.map(toInterface);
