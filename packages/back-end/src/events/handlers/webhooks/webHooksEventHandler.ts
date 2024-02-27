@@ -10,10 +10,9 @@ import { EventWebHookNotifier } from "./EventWebHookNotifier";
  * Common handler that looks up the web hooks and makes a post request with the event.
  */
 export const webHooksEventHandler: NotificationEventHandler = async (event) => {
-  const {
-    filterData: { tags, projects },
-  } = getFilterDataForNotificationEvent(event.data) || {
-    filterData: { tags: [], projects: [] },
+  const { tags, projects } = getFilterDataForNotificationEvent(event.data) || {
+    tags: [],
+    projects: [],
   };
 
   const eventWebHooks = (

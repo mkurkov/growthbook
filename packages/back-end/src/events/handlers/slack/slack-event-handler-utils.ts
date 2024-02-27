@@ -19,7 +19,8 @@ import {
 
 // region Filtering
 
-type DataForNotificationEvent = FilterDataForNotificationEvent & {
+type DataForNotificationEvent = {
+  filterData: FilterDataForNotificationEvent;
   slackMessage: SlackMessage;
 };
 
@@ -38,25 +39,25 @@ export const getDataForNotificationEvent = (
 
     case "feature.created":
       return {
-        ...filterData,
+        filterData,
         slackMessage: buildSlackMessageForFeatureCreatedEvent(event, eventId),
       };
 
     case "feature.updated":
       return {
-        ...filterData,
+        filterData,
         slackMessage: buildSlackMessageForFeatureUpdatedEvent(event, eventId),
       };
 
     case "feature.deleted":
       return {
-        ...filterData,
+        filterData,
         slackMessage: buildSlackMessageForFeatureDeletedEvent(event, eventId),
       };
 
     case "experiment.created":
       return {
-        ...filterData,
+        filterData,
         slackMessage: buildSlackMessageForExperimentCreatedEvent(
           event,
           eventId
@@ -65,7 +66,7 @@ export const getDataForNotificationEvent = (
 
     case "experiment.updated":
       return {
-        ...filterData,
+        filterData,
         slackMessage: buildSlackMessageForExperimentUpdatedEvent(
           event,
           eventId
@@ -74,7 +75,7 @@ export const getDataForNotificationEvent = (
 
     case "experiment.deleted":
       return {
-        ...filterData,
+        filterData,
         slackMessage: buildSlackMessageForExperimentDeletedEvent(
           event,
           eventId

@@ -8,10 +8,8 @@ import {
 import { ApiFeature } from "../../../types/openapi";
 
 export type FilterDataForNotificationEvent = {
-  filterData: {
-    tags: string[];
-    projects: string[];
-  };
+  tags: string[];
+  projects: string[];
 };
 
 export const getFilterDataForNotificationEvent = (
@@ -25,80 +23,64 @@ export const getFilterDataForNotificationEvent = (
 
     case "feature.created":
       return {
-        filterData: {
-          tags: event.data.current.tags || [],
-          projects: event.data.current.project
-            ? [event.data.current.project]
-            : [],
-        },
+        tags: event.data.current.tags || [],
+        projects: event.data.current.project
+          ? [event.data.current.project]
+          : [],
       };
 
     case "feature.updated":
       return {
-        filterData: {
-          tags: uniq(
-            (event.data.current.tags || []).concat(
-              event.data.previous.tags || []
-            )
-          ),
-          projects: uniq(
-            (event.data.current.project
-              ? [event.data.current.project]
-              : []
-            ).concat(
-              event.data.previous.project ? [event.data.previous.project] : []
-            )
-          ),
-        },
+        tags: uniq(
+          (event.data.current.tags || []).concat(event.data.previous.tags || [])
+        ),
+        projects: uniq(
+          (event.data.current.project
+            ? [event.data.current.project]
+            : []
+          ).concat(
+            event.data.previous.project ? [event.data.previous.project] : []
+          )
+        ),
       };
 
     case "feature.deleted":
       return {
-        filterData: {
-          tags: event.data.previous.tags || [],
-          projects: event.data.previous.project
-            ? [event.data.previous.project]
-            : [],
-        },
+        tags: event.data.previous.tags || [],
+        projects: event.data.previous.project
+          ? [event.data.previous.project]
+          : [],
       };
 
     case "experiment.created":
       return {
-        filterData: {
-          tags: event.data.current.tags || [],
-          projects: event.data.current.project
-            ? [event.data.current.project]
-            : [],
-        },
+        tags: event.data.current.tags || [],
+        projects: event.data.current.project
+          ? [event.data.current.project]
+          : [],
       };
 
     case "experiment.updated":
       return {
-        filterData: {
-          tags: uniq(
-            (event.data.current.tags || []).concat(
-              event.data.previous.tags || []
-            )
-          ),
-          projects: uniq(
-            (event.data.current.project
-              ? [event.data.current.project]
-              : []
-            ).concat(
-              event.data.previous.project ? [event.data.previous.project] : []
-            )
-          ),
-        },
+        tags: uniq(
+          (event.data.current.tags || []).concat(event.data.previous.tags || [])
+        ),
+        projects: uniq(
+          (event.data.current.project
+            ? [event.data.current.project]
+            : []
+          ).concat(
+            event.data.previous.project ? [event.data.previous.project] : []
+          )
+        ),
       };
 
     case "experiment.deleted":
       return {
-        filterData: {
-          tags: event.data.previous.tags || [],
-          projects: event.data.previous.project
-            ? [event.data.previous.project]
-            : [],
-        },
+        tags: event.data.previous.tags || [],
+        projects: event.data.previous.project
+          ? [event.data.previous.project]
+          : [],
       };
 
     default:
