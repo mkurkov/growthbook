@@ -30,7 +30,7 @@ export type EventWebHookEditParams = {
   projects: string[];
   payloadType: EventWebHookPayloadType;
   method: EventWebHookMethod;
-  headers: Record<string, string>;
+  headers: string;
 };
 
 export const notificationEventNames = [

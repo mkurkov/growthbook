@@ -37,7 +37,7 @@ export const EditMode = () => {
           projects: [],
           payloadType: "raw",
           method: "POST",
-          headers: {},
+          headers: "{}",
         },
       }}
     />

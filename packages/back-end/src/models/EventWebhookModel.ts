@@ -277,7 +277,7 @@ export const deleteEventWebHookById = async ({
  * @param organizationId organization ID
  */
 export const deleteOrganizationventWebHook = async (
-  organizationId
+  organizationId: string
 ): Promise<boolean> => {
   const result = await EventWebHookModel.deleteMany({
     organizationId,

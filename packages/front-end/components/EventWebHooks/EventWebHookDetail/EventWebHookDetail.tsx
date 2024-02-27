@@ -185,7 +185,7 @@ export const EventWebHookDetail: FC<EventWebHookDetailProps> = ({
               projects: [],
               payloadType: "raw",
               method: "POST",
-              headers: {},
+              headers: "{}",
               ...eventWebHook,
             },
           }}

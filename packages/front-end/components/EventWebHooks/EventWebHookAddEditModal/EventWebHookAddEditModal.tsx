@@ -5,6 +5,7 @@ import { NotificationEventName } from "back-end/src/events/base-types";
 import Modal from "@/components/Modal";
 import MultiSelectField from "@/components/Forms/MultiSelectField";
 import SelectField from "@/components/Forms/SelectField";
+import CodeTextArea from "@/components/Forms/CodeTextArea";
 import Toggle from "@/components/Forms/Toggle";
 import {
   eventWebHookMethods,
@@ -43,15 +44,27 @@ export const EventWebHookAddEditModal: FC<EventWebHookAddEditModalProps> = ({
   error,
 }) => {
   const [ctaEnabled, setCtaEnabled] = useState(false);
+  const [validHeaders, setValidHeaders] = useState(true);
   const environmentSettings = useEnvironments();
   const environments = environmentSettings.map((env) => env.id);
+
+  const validateHeaders = (headers: string) => {
+    try {
+      JSON.parse(headers);
+      setValidHeaders(true);
+      return true;
+    } catch (error) {
+      setValidHeaders(false);
+      return false;
+    }
+  };
 
   const { projects, tags } = useDefinitions();
 
   const form = useForm<EventWebHookEditParams>({
     defaultValues:
       mode.mode === "edit"
-        ? mode.data
+        ? { ...mode.data, headers: JSON.stringify(mode.data.headers) }
         : {
             name: "",
             events: [],
@@ -62,12 +75,12 @@ export const EventWebHookAddEditModal: FC<EventWebHookAddEditModalProps> = ({
             tags: [],
             payloadType: "raw",
             method: "POST",
-            headers: {},
+            headers: "{}",
           },
   });
 
   const handleSubmit = form.handleSubmit(async (values) => {
-    onSubmit(values);
+    onSubmit({ ...values, headers: JSON.parse(values.headers) });
   });
 
   const modalTitle =
@@ -76,6 +89,7 @@ export const EventWebHookAddEditModal: FC<EventWebHookAddEditModalProps> = ({
 
   const handleFormValidation = useCallback(() => {
     const formValues = form.getValues();
+    if (!validateHeaders(formValues.headers)) return setCtaEnabled(false);
 
     const schema = z.object({
       url: z.string().url(),
@@ -87,7 +101,7 @@ export const EventWebHookAddEditModal: FC<EventWebHookAddEditModalProps> = ({
       projects: z.array(z.string()),
       environments: z.array(z.string()),
       method: z.enum(eventWebHookMethods),
-      headers: z.object({}).catchall(z.string()),
+      headers: z.string(),
     });
 
     setCtaEnabled(schema.safeParse(formValues).success);
@@ -151,6 +165,26 @@ export const EventWebHookAddEditModal: FC<EventWebHookAddEditModalProps> = ({
           form.setValue("method", value);
           handleFormValidation();
         }}
+      />
+
+      <CodeTextArea
+        label="Headers"
+        language="json"
+        minLines={1}
+        value={form.watch("headers")}
+        setValue={(headers) => {
+          form.setValue("headers", headers);
+          handleFormValidation();
+        }}
+        helpText={
+          <>
+            {!validHeaders ? (
+              <div className="alert alert-danger mr-auto">Invalid JSON</div>
+            ) : (
+              <div>JSON format for headers.</div>
+            )}
+          </>
+        }
       />
 
       <MultiSelectField
