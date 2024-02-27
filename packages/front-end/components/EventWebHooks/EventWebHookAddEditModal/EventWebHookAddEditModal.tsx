@@ -191,6 +191,7 @@ export const EventWebHookAddEditModal: FC<EventWebHookAddEditModalProps> = ({
         label="Events"
         value={form.watch("events")}
         placeholder="Choose events"
+        sort={false}
         options={eventWebHookEventOptions.map(({ id }) => ({
           label: id,
           value: id,
@@ -218,6 +219,7 @@ export const EventWebHookAddEditModal: FC<EventWebHookAddEditModalProps> = ({
       <MultiSelectField
         label="Environment filters"
         helpText="Only receive notifications for matching environments."
+        sort={false}
         value={form.watch("environments")}
         options={environments.map((env) => ({
           label: env,
@@ -232,6 +234,7 @@ export const EventWebHookAddEditModal: FC<EventWebHookAddEditModalProps> = ({
       <MultiSelectField
         label="Project filters"
         helpText="Only receive notifications for matching projects."
+        sort={false}
         value={form.watch("projects")}
         options={projects.map(({ name, id }) => ({
           label: name,
