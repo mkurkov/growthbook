@@ -6,11 +6,8 @@ import { getConnectionStringWithDeprecatedKeysMigratedForV3to4 } from "../util/m
 
 mongoose.Promise = bluebird;
 
-export default async (): Promise<void> => {
-  let uri = MONGODB_URI;
-  if (process.env.NODE_ENV === "test") {
-    uri = process.env.MONGO_URL || "";
-  }
+export default async (): Promise<{ close: () => void }> => {
+  const uri = MONGODB_URI;
 
   const mongooseOpts: ConnectOptions = {
     bufferCommands: false,
@@ -22,6 +19,7 @@ export default async (): Promise<void> => {
   try {
     // in Mongoose 7.x, connect will no longer return a Mongoose client
     await mongoose.connect(uri, mongooseOpts);
+    return { close: () => mongoose.connection.close() };
   } catch (e) {
     logger.warn(
       e,
@@ -50,6 +48,7 @@ export default async (): Promise<void> => {
       }
 
       await mongoose.connect(modifiedUri, mongooseOpts);
+      return { close: () => mongoose.connection.close() };
     } catch (e) {
       logger.error(e, "Failed to connect to MongoDB after retrying");
       throw new Error("MongoDB connection error.");

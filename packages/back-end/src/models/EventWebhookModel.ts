@@ -272,6 +272,20 @@ export const deleteEventWebHookById = async ({
   return result.deletedCount === 1;
 };
 
+/**
+ * Given an EventWebHook.organizationId will delete the all corresponding document
+ * @param organizationId organization ID
+ */
+export const deleteOrganizationventWebHook = async (
+  organizationId
+): Promise<boolean> => {
+  const result = await EventWebHookModel.deleteMany({
+    organizationId,
+  });
+
+  return result.deletedCount > 0;
+};
+
 type UpdateEventWebHookAttributes = {
   name?: string;
   url?: string;
