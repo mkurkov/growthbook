@@ -36,6 +36,13 @@ jobs:
           python-version: 3.11
           cache: 'pip'
 
+      - name: Start MongoDB
+        uses: supercharge/mongodb-github-action@1.10.0
+        with:
+          mongodb-username: root
+          mongodb-password: password
+          mongodb-port: 27017
+
       - name: Cache eslint
         uses: actions/cache@v2
         with:
