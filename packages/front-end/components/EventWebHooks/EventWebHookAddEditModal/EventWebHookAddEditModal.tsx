@@ -64,7 +64,7 @@ export const EventWebHookAddEditModal: FC<EventWebHookAddEditModalProps> = ({
   const form = useForm<EventWebHookEditParams>({
     defaultValues:
       mode.mode === "edit"
-        ? { ...mode.data, headers: JSON.stringify(mode.data.headers) }
+        ? mode.data
         : {
             name: "",
             events: [],
@@ -202,19 +202,21 @@ export const EventWebHookAddEditModal: FC<EventWebHookAddEditModalProps> = ({
         }}
       />
 
-      <SelectField
-        label="Payload Type"
-        value={form.watch("payloadType")}
-        placeholder="Choose payload type"
-        options={eventWebHookPayloadTypes.map((key) => ({
-          label: eventWebHookPayloadValues[key],
-          value: key,
-        }))}
-        onChange={(value: EventWebHookPayloadType) => {
-          form.setValue("payloadType", value);
-          handleFormValidation();
-        }}
-      />
+      {false && (
+        <SelectField
+          label="Payload Type"
+          value={form.watch("payloadType")}
+          placeholder="Choose payload type"
+          options={eventWebHookPayloadTypes.map((key) => ({
+            label: eventWebHookPayloadValues[key],
+            value: key,
+          }))}
+          onChange={(value: EventWebHookPayloadType) => {
+            form.setValue("payloadType", value);
+            handleFormValidation();
+          }}
+        />
+      )}
 
       <MultiSelectField
         label="Environment filters"
