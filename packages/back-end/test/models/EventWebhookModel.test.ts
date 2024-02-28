@@ -62,7 +62,11 @@ describe("getAllEventWebHooksForEvent", () => {
       projects: ["gni"],
     });
 
-    expect(filteredModels.map(({ id }) => id)).toEqual([model1.id, model2.id]);
+    expect(filteredModels.map(({ id }) => id)).toEqual([
+      model1.id,
+      model2.id,
+      model3.id,
+    ]);
 
     const nonFilteredModels = await getAllEventWebHooksForEvent({
       organizationId,
