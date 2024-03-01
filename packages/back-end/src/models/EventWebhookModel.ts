@@ -3,6 +3,7 @@ import z from "zod";
 import omit from "lodash/omit";
 import md5 from "md5";
 import mongoose from "mongoose";
+import intersection from "lodash/intersection";
 import {
   NotificationEventName,
   notificationEventNames,
@@ -380,26 +381,24 @@ export const getAllEventWebHooksForEvent = async ({
   tags: string[];
   projects: string[];
 }): Promise<EventWebHookInterface[]> => {
-  const docs = await EventWebHookModel.find({
+  const allDocs = await EventWebHookModel.find({
     organizationId,
     events: eventName,
     enabled,
-    $and: [
-      {
-        $or: [
-          { tags: { $size: 0 } },
-          ...(tags.length ? [{ tags: { $elemMatch: { $in: tags } } }] : []),
-        ],
-      },
-      {
-        $or: [
-          { projects: { $size: 0 } },
-          ...(projects.length
-            ? [{ projects: { $elemMatch: { $in: projects } } }]
-            : []),
-        ],
-      },
-    ],
+  });
+
+  const docs = allDocs.filter((doc) => {
+    if (doc.tags?.length && tags?.length && !intersection(doc.tags, tags))
+      return false;
+
+    if (
+      doc.projects?.length &&
+      projects.length &&
+      !intersection(doc.projects, projects)
+    )
+      return false;
+
+    return true;
   });
 
   return docs.map(toInterface);
