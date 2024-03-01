@@ -4,6 +4,7 @@ import { useForm } from "react-hook-form";
 import { NotificationEventName } from "back-end/src/events/base-types";
 import Modal from "@/components/Modal";
 import MultiSelectField from "@/components/Forms/MultiSelectField";
+import Field from "@/components/Forms/Field";
 import SelectField from "@/components/Forms/SelectField";
 import CodeTextArea from "@/components/Forms/CodeTextArea";
 import Toggle from "@/components/Forms/Toggle";
@@ -119,39 +120,30 @@ export const EventWebHookAddEditModal: FC<EventWebHookAddEditModalProps> = ({
       error={error ?? undefined}
       ctaEnabled={ctaEnabled}
     >
-      <div className="form-group">
-        <label htmlFor="EventWebHookAddModal-name">Webhook Name</label>
+      <Field
+        label="Webhook Name"
+        placeholder="My Webhook"
+        {...form.register("name")}
+        onChange={(evt) => {
+          form.setValue("name", evt.target.value);
+          handleFormValidation();
+        }}
+      />
 
-        <input
-          className="form-control"
-          type="text"
-          autoComplete="off"
-          placeholder="My Webhook"
-          id="EventWebHookAddModal-name"
-          {...form.register("name")}
-          onChange={(evt) => {
-            form.setValue("name", evt.target.value);
-            handleFormValidation();
-          }}
-        />
-      </div>
-
-      <div className="form-group">
-        <label htmlFor="EventWebHookAddModal-url">Endpoint URL</label>
-
-        <input
-          className="form-control"
-          type="text"
-          autoComplete="off"
-          placeholder="https://example.com/growthbook-webhook"
-          id="EventWebHookAddModal-url"
-          {...form.register("url")}
-          onChange={(evt) => {
-            form.setValue("url", evt.target.value);
-            handleFormValidation();
-          }}
-        />
-      </div>
+      <Field
+        label="Endpoint URL"
+        placeholder="https://example.com/growthbook-webhook"
+        {...form.register("url")}
+        helpText={
+          <>
+            Must accept <code>{form.watch("method")}</code> requests
+          </>
+        }
+        onChange={(evt) => {
+          form.setValue("url", evt.target.value);
+          handleFormValidation();
+        }}
+      />
 
       <SelectField
         label="Method"
