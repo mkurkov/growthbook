@@ -27,7 +27,7 @@ import { insertAudit } from "../models/AuditModel";
 import { getTeamsForOrganization } from "../models/TeamModel";
 import { TeamInterface } from "../../types/team";
 import { getUserById } from "../services/users";
-import { initializeLicense } from "../services/licenseData";
+import { initializeLicenseForOrg } from "../services/licenseData";
 
 export default function authenticateApiRequestMiddleware(
   req: Request & ApiRequestLocals,
@@ -189,7 +189,7 @@ export default function authenticateApiRequestMiddleware(
       };
 
       // init license for org if it exists
-      await initializeLicense(req.organization.licenseKey);
+      await initializeLicenseForOrg(req.organization);
 
       // Continue to the actual request handler
       next();
